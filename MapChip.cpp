@@ -34,6 +34,11 @@ MapChip::MapChip()
 			bgRects_.push_back(tmp);
 		}
 	}
+	//LUT(Look Up Table)ì¬
+	for (int i = 0; i < bgHandle.size(); i++)
+	{
+			HandleToIndex[bgHandle[i]] = i;	
+	}
 }
 
 
@@ -137,4 +142,17 @@ int MapChip::GetHoldImage()
 	{
 		return -1; //‚Á‚Ä‚¢‚È‚¢ê‡‚Í-1‚ğ•Ô‚·
 	}
+}
+
+int MapChip::GetChipIndex(int handle)
+{
+		return HandleToIndex[handle];
+
+	//for (int i = 0; i < bgHandle.size(); i++)
+	//{
+	//	if (handle == bgHandle[i]) 
+	//		return i; 
+	//}
+	//return HandleToIndex.count(handle) ? HandleToIndex[handle] : -1;
+	//return -1;
 }

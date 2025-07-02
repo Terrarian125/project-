@@ -1,8 +1,10 @@
+#include <windows.h>
 #include "MapEdit.h"
 #include <cassert>
 #include "Input.h"
 #include "DxLib.h"
 #include "MapChip.h"
+#include <fstream>
 
 
 MapEdit::MapEdit()
@@ -77,7 +79,10 @@ void MapEdit::Update()
 		{
 			SetMap({ gridX, gridY }, -1);
 		}
-
+	}
+	if (Input::IsKeyDown(KEY_INPUT_S)) 
+	{
+		SaveMapData();
 	}
 }
 
@@ -117,5 +122,52 @@ void MapEdit::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 
+
+}
+
+void MapEdit::SaveMapData()
+{
+	//頑張ってファイル選択ダイアログを出す
+	TCHAR filename[255] = "";
+	OPENFILENAME ofn = { 0 };
+
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = GetMainWindowHandle();
+	ofn.lpstrFilter ="全てのファイル(*.*)\0 * .*\0";
+	ofn.lpstrFile = filename;
+	ofn.nMaxFile = 255;
+	ofn.Flags = OFN_OVERWRITEPROMPT;
+
+	if (GetSaveFileName(&ofn))
+	{
+		printfDx("ファイル選択された\n");
+		//ファイルを開いてセーブ
+		std::ofstream openfile(filename);
+	}
+	else {
+		//ファイル選択がキャンセルされたら
+		printfDx("キャンセルされた\n");
+	}
+
+	printfDx("File Saved!!!\n");
+	std::ofstream file("data.bat");
+	MapChip* mc = FindGameObject<MapChip>();
+
+		for (int j = 0; j < MAP_HEIGHT; j++) {
+			for (int i = 0; i < MAP_WIDTH; i++) {
+
+				int index;
+				if (myMap_[j * MAP_WIDTH + i] != -1) {
+				index = mc->GetChipIndex(myMap_[j * MAP_WIDTH + i]);
+				}
+				else {
+					index = -1; 
+				}
+				file << index << " "; 
+			}
+
+			file  << std::endl;
+		}
+	file.close();
 
 }
