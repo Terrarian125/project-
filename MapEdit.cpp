@@ -92,7 +92,7 @@ void MapEdit::Update()
 			SetMap({ gridX, gridY }, -1); //マップに値をセット（-1は何もない状態）
 			return; //マップチップを削除したらここで終了
 		}
-		else if (mapChip && mapChip->IsHold()) //マップチップを持っているなら
+		else if (mapChip && mapChip->isHold()) //マップチップを持っているなら
 		{
 			SetMap({ gridX, gridY }, mapChip->GetHoldImage()); //マップに値をセット
 		}

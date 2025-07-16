@@ -15,7 +15,7 @@ public:
 	void Update() override;
 	void Draw() override;
 	int GetHandle(int index) { return bgHandle[index]; } //ハンドルを取得する
-	bool IsHold();//マップチップを持っているかどうか
+	bool isHold();//マップチップを持っているかどうか
 	int  GetHoldImage(); //持ってるマップチップのハンドルを取得する
 	int GetChipIndex(int handle);
 	Point GetViewOrigin() const;
