@@ -15,12 +15,12 @@ namespace
 
 
 class MapEdit :
-	public GameObject
+    public GameObject
 {
 public:
 	MapEdit();
 	~MapEdit();
-
+	
 	void SetMap(Point p, int value);
 	int GetMap(Point p) const;
 	bool IsInMapEditArea() const { return isInMapEditArea_; } //マップエディタ領域内にいるかどうかを取得する
@@ -28,6 +28,7 @@ public:
 	void Update() override;
 	void Draw() override;
 	void SaveMapData();
+	void LoadMapData();
 private:
 	std::vector<int> myMap_; //マップの配列
 	Rect mapEditRect_; //マップ領域の矩形

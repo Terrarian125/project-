@@ -5,7 +5,10 @@
 #include "DxLib.h"
 #include "MapChip.h"
 #include <fstream>
-
+#include <codecvt>
+#include <sstream>
+#include  <iostream>
+#include <string>
 
 MapEdit::MapEdit()
 	:GameObject(), myMap_(MAP_WIDTH* MAP_HEIGHT, -1), //初期値を-1で20*20の配列を初期化する
@@ -65,24 +68,42 @@ void MapEdit::Update()
 		MAP_IMAGE_SIZE, MAP_IMAGE_SIZE };
 
 	//マウスのボタンが押されたら、持ってる画像をその座標に貼る
+	//if (Input::IsButtonDown(MOUSE_INPUT_LEFT)) //左クリックでマップに値をセット
+	//{
+	//	MapChip* mapChip = FindGameObject<MapChip>();
+
+	//	if (CheckHitKey(KEY_INPUT_LSHIFT)) //Rキーを押しているなら
+	//	{
+	//		SetMap({ gridX, gridY }, -1); //マップに値をセット（-1は何もない状態）
+	//		return; //マップチップを削除したらここで終了
+	//	}
+	//	else if (mapChip && mapChip->IsHold()) //マップチップを持っているなら
+	//	{
+	//		SetMap({ gridX, gridY }, mapChip->GetHoldImage()); //マップに値をセット
+	//	}
+	//}
+
 	if (Input::IsButtonKeep(MOUSE_INPUT_LEFT)) //左クリックでマップに値をセット
 	{
 		MapChip* mapChip = FindGameObject<MapChip>();
 
-		if (mapChip && mapChip->IsHold()) //マップチップを持っているなら
+		if (CheckHitKey(KEY_INPUT_LSHIFT)) //Rキーを押しているなら
+		{
+			SetMap({ gridX, gridY }, -1); //マップに値をセット（-1は何もない状態）
+			return; //マップチップを削除したらここで終了
+		}
+		else if (mapChip && mapChip->IsHold()) //マップチップを持っているなら
 		{
 			SetMap({ gridX, gridY }, mapChip->GetHoldImage()); //マップに値をセット
 		}
-
-		//LSHIFT押しながらで消す
-		if (Input::IsKeepKeyDown(KEY_INPUT_LSHIFT) )
-		{
-			SetMap({ gridX, gridY }, -1);
-		}
 	}
-	if (Input::IsKeyDown(KEY_INPUT_S)) 
+	if (Input::IsKeyDown(KEY_INPUT_S))
 	{
 		SaveMapData();
+	}
+	if (Input::IsKeyDown(KEY_INPUT_L))
+	{
+		LoadMapData();
 	}
 }
 
@@ -127,47 +148,113 @@ void MapEdit::Draw()
 
 void MapEdit::SaveMapData()
 {
-	//頑張ってファイル選択ダイアログを出す
+	//頑張ってファイル選択ダイアログを出す回
 	TCHAR filename[255] = "";
 	OPENFILENAME ofn = { 0 };
 
 	ofn.lStructSize = sizeof(ofn);
+	//ウィンドウのオーナー＝親ウィンドウのハンドル
 	ofn.hwndOwner = GetMainWindowHandle();
-	ofn.lpstrFilter ="全てのファイル(*.*)\0 * .*\0";
+	ofn.lpstrFilter = "全てのファイル (*.*)\0*.*\0";
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = 255;
 	ofn.Flags = OFN_OVERWRITEPROMPT;
 
+
 	if (GetSaveFileName(&ofn))
 	{
-		printfDx("ファイル選択された\n");
-		//ファイルを開いてセーブ
+		printfDx("ファイルが選択された\n");
+		//ファイルを開いて、セーブ
+		//std::filesystem ファイル名だけ取り出す
+		//ofstreamを開く
 		std::ofstream openfile(filename);
 	}
-	else {
-		//ファイル選択がキャンセルされたら
-		printfDx("キャンセルされた\n");
+	else
+	{
+		//ファイルの選択がキャンセル
+		printfDx("セーブがキャンセル\n");
 	}
 
 	printfDx("File Saved!!!\n");
+
 	std::ofstream file("data.bat");
+
+	file << "#TinyMapData\n" ; 
+
 	MapChip* mc = FindGameObject<MapChip>();
 
-		for (int j = 0; j < MAP_HEIGHT; j++) {
-			for (int i = 0; i < MAP_WIDTH; i++) {
+	for (int j = 0; j < MAP_HEIGHT; j++) {
+		for (int i = 0; i < MAP_WIDTH; i++) {
 
-				int index;
-				if (myMap_[j * MAP_WIDTH + i] != -1) {
+			int index;
+			if (myMap_[j * MAP_WIDTH + i] != -1)
 				index = mc->GetChipIndex(myMap_[j * MAP_WIDTH + i]);
-				}
-				else {
-					index = -1; 
-				}
-				file << index << " "; 
-			}
-
-			file  << std::endl;
+			else
+				index = -1;
+			file << index << " ";
 		}
+		file << std::endl;
+	}
+
 	file.close();
+}
+
+void MapEdit::LoadMapData()
+{
+	//頑張ってファイル選択ダイアログを出す回
+	TCHAR filename[255] = "";
+	OPENFILENAME ifn = { 0 };
+
+	ifn.lStructSize = sizeof(ifn);
+	//ウィンドウのオーナー＝親ウィンドウのハンドル
+	ifn.hwndOwner = GetMainWindowHandle();
+	ifn.lpstrFilter = "全てのファイル (*.*)\0*.*\0";
+	ifn.lpstrFile = filename;
+	ifn.nMaxFile = 255;
+	//ifn.Flags = OFN_OVERWRITEPROMPT;
+
+	//GetOpenFileName()
+
+	if (GetOpenFileName(&ifn))
+	{
+		printfDx("ファイルが選択された→%s\n", filename);
+		//ファイルを開いて、セーブ
+		//std::filesystem ファイル名だけ取り出す
+		//ifstreamを開く input file stream
+		std::ifstream inputfile(filename);
+		std::string line;
+
+		MapChip* mc = FindGameObject<MapChip>();
+		//myMap_.clear(); //マップを空に！！
+		while (std::getline(inputfile, line)) {
+			// 空行はスキップ
+			if (line.empty()) continue;
+			//printfDx("%s\n", line.c_str());
+			if (line[0] != '#')
+			{
+				std::istringstream iss(line);
+				std::string tmp;
+				while (getline(iss, tmp,',')) {
+					printfDx("%s ", tmp.c_str());
+					if (tmp == "-1")
+					{
+						myMap_.push_back(-1);
+					}
+				else
+					{
+						int index = std::stoi(tmp);
+						int handle = mc->GetHandle(index);
+						myMap_.push_back(handle);
+					}
+				}
+				printfDx("\n");
+			}
+		}
+	}
+	else
+	{
+		//ファイルの選択がキャンセル
+		printfDx("セーブがキャンセル\n");
+	}
 
 }
