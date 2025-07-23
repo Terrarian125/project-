@@ -63,6 +63,9 @@
     <ClCompile Include="MapChipConfig.cpp">
       <Filter>PlayScene</Filter>
     </ClCompile>
+    <ClCompile Include="MapEditConfig.cpp">
+      <Filter>PlayScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Screen.h" />
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="globals.h" />
     <ClInclude Include="MapChipConfig.h">
+      <Filter>PlayScene</Filter>
+    </ClInclude>
+    <ClInclude Include="MapEditConfig.h">
       <Filter>PlayScene</Filter>
     </ClInclude>
   </ItemGroup>

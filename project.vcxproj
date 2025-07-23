@@ -156,6 +156,7 @@
     <ClInclude Include="MapChip.h" />
     <ClInclude Include="MapChipConfig.h" />
     <ClInclude Include="MapEdit.h" />
+    <ClInclude Include="MapEditConfig.h" />
     <ClInclude Include="Source\BootScene.h" />
     <ClInclude Include="Source\Screen.h" />
     <ClInclude Include="Source\PlayScene.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="MapChip.cpp" />
     <ClCompile Include="MapChipConfig.cpp" />
     <ClCompile Include="MapEdit.cpp" />
+    <ClCompile Include="MapEditConfig.cpp" />
     <ClCompile Include="Source\BootScene.cpp" />
     <ClCompile Include="Source\PlayScene.cpp" />
     <ClCompile Include="Source\SceneFactory.cpp" />

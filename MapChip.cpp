@@ -35,10 +35,12 @@ MapChip::MapChip()
 		cfg_.TILES_X, cfg_.TILES_Y,
 		cfg_.TILE_PIX_SIZE, cfg_.TILE_PIX_SIZE, bgHandle.data());
 
+
 	//LUT(Look Up Table) 作成
 	for (int i = 0; i < bgHandle.size(); i++)
 	{
 		HandleToIndex[bgHandle[i]] = i;
+
 	}
 }
 
@@ -83,16 +85,29 @@ void MapChip::Update()
 
 	if (isInMapChipArea_) {
 		if (Input::IsKeyDown(KEY_INPUT_LEFT))
-			ScrollOffset_.x = std::min(std::max(0, cfg_.TILES_X - cfg_.MAPCHIP_VIEW_X), ScrollOffset_.x + 1);
-		if (Input::IsKeyDown(KEY_INPUT_RIGHT))
+		{
 			ScrollOffset_.x = std::max(0, ScrollOffset_.x - 1);
+		}
+		if (Input::IsKeyDown(KEY_INPUT_RIGHT))
+		{
+			ScrollOffset_.x = std::min(cfg_.TILES_X - cfg_.MAPCHIP_VIEW_X, ScrollOffset_.x + 1);
+		}
 		if (Input::IsKeyDown(KEY_INPUT_UP))
-			ScrollOffset_.y = std::min(std::max(0, cfg_.TILES_Y - cfg_.MAPCHIP_VIEW_Y), ScrollOffset_.y + 1);
-		if (Input::IsKeyDown(KEY_INPUT_DOWN))
+		{
 			ScrollOffset_.y = std::max(0, ScrollOffset_.y - 1);
+		}
+		if (Input::IsKeyDown(KEY_INPUT_DOWN))
+		{
+			ScrollOffset_.y = std::min(cfg_.TILES_Y - cfg_.MAPCHIP_VIEW_Y, ScrollOffset_.y + 1);
+		}
 
+
+
+		int i = (mousePos.x - GetViewOrigin().x) / cfg_.TILE_PIX_SIZE;
+		int j = mousePos.y / cfg_.TILE_PIX_SIZE;
 		selected_ = ScreenToChipIndex(mousePos);
-		int index = selected_.y * cfg_.TILES_X + selected_.x;
+		int index = (j + ScrollOffset_.y) * 
+			cfg_.TILES_X + (i + ScrollOffset_.x);
 
 		if (Input::IsButtonDown(MOUSE_INPUT_LEFT))
 		{
@@ -111,15 +126,17 @@ void MapChip::Update()
 void MapChip::Draw()
 {
 	//マップチップ領域表示
-	for (int i = 0; i < cfg_.TILES_X; i++) {
-		for (int j = 0; j < cfg_.TILES_Y; j++) {
-			int index = i + ScrollOffset_.x + j * cfg_.TILES_X;
+	for (int i = 0; i < cfg_.MAPCHIP_VIEW_X; i++) {
+		for (int j = 0; j < cfg_.MAPCHIP_VIEW_Y; j++) {
+			int index = (j + ScrollOffset_.y) * cfg_.TILES_X + (i + ScrollOffset_.x);
 			if (index < 0 || index >= bgHandle.size())
-				continue; //範囲外のインデックスはスキップ
-			DrawGraph(GetViewOrigin().x + i * cfg_.TILE_PIX_SIZE,
+				continue;
+			DrawGraph(
+				GetViewOrigin().x + i * cfg_.TILE_PIX_SIZE,
 				GetViewOrigin().y + j * cfg_.TILE_PIX_SIZE,
-				bgHandle[index], TRUE);
-
+				bgHandle[index],
+				TRUE
+			);
 		}
 	}
 

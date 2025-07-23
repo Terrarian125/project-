@@ -2,6 +2,7 @@
 #include "Library\GameObject.h"
 #include <vector>
 #include "globals.h"
+#include "MapEditConfig.h"
 
 namespace
 {
