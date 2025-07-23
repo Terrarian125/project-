@@ -5,7 +5,6 @@
 #include <map>
 #include "MapChipConfig.h"
 
-
 class MapChip :
 	public GameObject
 {
